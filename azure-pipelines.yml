@@ -78,3 +78,29 @@ stages:
               PathtoPublish: '$(Build.ArtifactStagingDirectory)/frontend'
               ArtifactName: '$(frontendArtifactName)'
               publishLocation: 'Container'
+  - stage: PolicyScan
+    displayName: 'Veracode Policy Scan'
+    dependsOn: Build
+    condition: succeeded()
+
+    jobs:
+    - job: VeracodeStaticScan
+      displayName: 'Veracode Static Scan – Backend'
+      steps:
+
+        - task: DownloadBuildArtifacts@1
+          displayName: 'Download Backend Artifact'
+          inputs:
+            buildType: 'current'
+            artifactName: '$(backendArtifactName)'
+            downloadPath: '$(Pipeline.Workspace)'
+
+        - task: Veracode@3
+          displayName: 'Upload & Scan to Veracode'
+          inputs:
+            ConnectionDetailsSelection: 'Credentials'
+            apiId: $(VERACODE_API_ID)
+            apiKey: $(VERACODE_API_KEY)
+            veracodeAppProfile: 'innov8-backend'
+            version: 'Azure-$(Build.BuildNumber)'
+            filepath: '$(Pipeline.Workspace)/$(backendArtifactName)/**/*.jar'
