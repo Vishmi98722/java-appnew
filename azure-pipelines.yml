@@ -108,4 +108,4 @@ stages:
             apiKey: $(VERACODE_API_KEY)
             veracodeAppProfile: 'innov8-backend'
             version: 'Azure-$(Build.BuildNumber)'
-            filepath: '$(Pipeline.Workspace)/$(backendArtifactName)/**/*.jar'
+            filepath: '$(Pipeline.Workspace)/$(backendArtifactName)/*.jar'
