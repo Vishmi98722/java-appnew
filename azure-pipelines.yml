@@ -95,6 +95,11 @@ stages:
             artifactName: '$(backendArtifactName)'
             downloadPath: '$(Pipeline.Workspace)'
 
+        - script: |
+            echo "Files in artifact:"
+            ls -R $(Pipeline.Workspace)/$(backendArtifactName)
+          displayName: 'DEBUG: Check downloaded artifacts'
+          
         - task: Veracode@3
           displayName: 'Upload & Scan to Veracode'
           inputs:
