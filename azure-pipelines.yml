@@ -79,33 +79,36 @@ stages:
               ArtifactName: '$(frontendArtifactName)'
               publishLocation: 'Container'
   - stage: PolicyScan
-    displayName: 'Veracode Policy Scan'
+    displayName: 'Policy Scan'
     dependsOn: Build
-    condition: succeeded()
-
     jobs:
-    - job: VeracodeStaticScan
-      displayName: 'Veracode Static Scan – Backend'
-      steps:
-
-        - task: DownloadBuildArtifacts@1
-          displayName: 'Download Backend Artifact'
-          inputs:
-            buildType: 'current'
-            artifactName: '$(backendArtifactName)'
-            downloadPath: '$(Pipeline.Workspace)'
-
-        - script: |
-            echo "Files in artifact:"
-            ls -R $(Pipeline.Workspace)/$(backendArtifactName)
-          displayName: 'DEBUG: Check downloaded artifacts'
-          
-        - task: Veracode@3
-          displayName: 'Upload & Scan to Veracode'
-          inputs:
-            ConnectionDetailsSelection: 'Credentials'
-            apiId: $(VERACODE_API_ID)
-            apiKey: $(VERACODE_API_KEY)
-            veracodeAppProfile: 'java-app-vish'
-            version: 'Azure-$(Build.BuildNumber)'
-            filepath: '$(Build.ArtifactStagingDirectory)/innov8-backend/innov8-observability-lab-1.0.0.jar'
+      - job: doStaticScan
+        displayName: 'Static Scan'
+        steps:
+          # debugging step
+          - script: |
+              echo buildNumber: $(Build.BuildNumber)
+              echo binDir: $(Build.BinariesDirectory)
+              echo artDir: $(Build.ArtifactStagingDirectory)
+              echo srcDir: $(Build.SourcesDirectory)
+            displayName: 'Debug variables'
+ 
+          # Download backend artifact from Build stage
+          - task: DownloadBuildArtifacts@1
+            displayName: 'Download Backend Artifact'
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'innov8-backend'
+              downloadPath: '$(Build.ArtifactStagingDirectory)'
+ 
+          # Veracode scan
+          - task: Veracode@3
+            displayName: 'Run Veracode Scan'
+            inputs:
+              ConnectionDetailsSelection: 'Credentials'
+              apiId: $(VERACODE_API_ID)
+              apiKey: $(VERACODE_API_KEY)
+              veracodeAppProfile: 'java-app-vish'
+              version: 'Azure-$(Build.BuildNumber)'
+              filepath: '$(Build.ArtifactStagingDirectory)/innov8-backend/innov8-observability-lab-1.0.0.jar'
