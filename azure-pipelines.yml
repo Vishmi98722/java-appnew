@@ -109,6 +109,6 @@ stages:
               ConnectionDetailsSelection: 'Credentials'
               apiId: $(VERACODE_API_ID)
               apiKey: $(VERACODE_API_KEY)
-              veracodeAppProfile: 'java-app-vish'
+              veracodeAppProfile: 'java-app-vishnew'
               version: 'Azure-$(Build.BuildNumber)'
               filepath: '$(Build.ArtifactStagingDirectory)/innov8-backend/innov8-observability-lab-1.0.0.jar'
